@@ -19,14 +19,11 @@ topic() {
 install_system_deps() {
 	topic "Installing System Dependencies"
 
-	local build_tmpdir=$(mktemp -d)
-	mkdir -p $build_tmpdir
-
 	SUPPORTED_BROWSERS=${PLAYWRIGHT_BUILDPACK_BROWSERS:-chromium,firefox,webkit}
 	echo "Installing Playwright dependencies (env: PLAYWRIGHT_BUILDPACK_BROWSERS) for $SUPPORTED_BROWSERS."
 
 	if [[ "$SUPPORTED_BROWSERS" == *"chromium"* ]]; then
-		cat << EOF >>$build_tmpdir/Aptfile
+		cat << EOF >>$BUILD_DIR/Aptfile
 # Chromium dependencies
 libnspr4
 libnss3
@@ -43,7 +40,7 @@ EOF
 	fi
 
 	if [[ "$SUPPORTED_BROWSERS" == *"firefox"* ]]; then
-		cat << EOF >>$build_tmpdir/Aptfile
+		cat << EOF >>$BUILD_DIR/Aptfile
 # Firefox dependencies
 libdbus-glib-1-2
 libxt6
@@ -56,7 +53,7 @@ EOF
 	fi
 
 	if [[ "$SUPPORTED_BROWSERS" == *"firefox"* || "$SUPPORTED_BROWSERS" == *"chromium"* ]]; then
-		cat << EOF >>$build_tmpdir/Aptfile
+		cat << EOF >>$BUILD_DIR/Aptfile
 # Needed by Firefox and Chromium
 libgdk-pixbuf2.0-0
 libcairo-gobject2
@@ -72,25 +69,23 @@ EOF
 
 	case "$STACK" in
 	  "heroku-18")
-	    cat << EOF >>$build_tmpdir/Aptfile
+	    cat << EOF >>$BUILD_DIR/Aptfile
 libvpx5
 EOF
 	    ;;
 	  "heroku-20")
-	    cat << EOF >>$build_tmpdir/Aptfile
+	    cat << EOF >>$BUILD_DIR/Aptfile
 libvpx6
 EOF
 	    ;;
 		"heroku-22")
-	    cat << EOF >>$build_tmpdir/Aptfile
+	    cat << EOF >>$BUILD_DIR/Aptfile
 libvpx7
 EOF
 	    ;;
 	  *)
 	    error "STACK must be 'heroku-18', 'heroku-20', or 'heroku-22'"
 	esac
-
-	local cache_tmpdir=$(mktemp -d)
 }
 
 configure_export_env() {
